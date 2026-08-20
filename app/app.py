@@ -16,8 +16,8 @@ ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 
 # Connect to Redis for fast lookups
 cache = redis.Redis(
-    host=os.environ["REDIS_HOST"],
-    port=int(os.environ.get("REDIS_PORT", 6379)),
+    host=os.environ.get("REDIS_HOST"),
+    port=int(os.environ.get("REDIS_PORT") or 6379),
     decode_responses=True,
 )
 
