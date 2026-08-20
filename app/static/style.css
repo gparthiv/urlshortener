@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Chelsea+Market&display=swap');
+
+* {
+  box-sizing: border-box;
+  font-family: "Chelsea Market", system-ui;
+}
+
+body {
+  margin: 0;
+  font-family: "Chelsea Market", system-ui;
+  background: #f5ead7;
+  color: #4b2e1f;
+}
+
+.chelsea-market-regular {
+  font-family: "Chelsea Market", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.container {
+  width: 90%;
+  max-width: 600px;
+  margin: 120px auto;
+  padding: 40px;
+  text-align: center;
+  background: #fff8ed;
+  border: 1px solid #c8a98a;
+  border-radius: 12px;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+p {
+  color: #76533d;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #b89573;
+  border-radius: 6px;
+  background: #fffaf2;
+}
+
+button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #5a3828;
+  color: #fff8ed;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3d2419;
+}
+
+.result {
+  margin-top: 25px;
+  padding: 15px;
+  background: #ead7bd;
+  border-radius: 8px;
+}
+
+.result a {
+  color: #5a3828;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+#theme-toggle {
+  margin-top: 25px;
+}
+
+/* Dark mode */
+
+body.dark {
+  background: #2b211b;
+  color: #f5ead7;
+}
+
+body.dark .container {
+  background: #3b2c23;
+  border-color: #76533d;
+}
+
+body.dark p {
+  color: #d4b99a;
+}
+
+body.dark input {
+  background: #2b211b;
+  color: #f5ead7;
+  border-color: #76533d;
+}
+
+body.dark .result {
+  background: #4a382c;
+}
+
+body.dark .result a {
+  color: #f0cfa8;
+}
