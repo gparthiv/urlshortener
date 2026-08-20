@@ -15,21 +15,48 @@ app = Flask(__name__)
 ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 
 # Connect to Redis for fast lookups
-cache = redis.Redis(
-    host=os.environ.get("REDIS_HOST"),
-    port=int(os.environ.get("REDIS_PORT") or 6379),
-    decode_responses=True,
-)
+REDIS_URL = os.environ.get("REDIS_URL")
+if REDIS_URL:
+    cache = redis.from_url(REDIS_URL, decode_responses=True)
+else:
+    cache = redis.Redis(
+        host=os.environ.get("REDIS_HOST"),
+        port=int(os.environ.get("REDIS_PORT") or 6379),
+        password=os.environ.get("REDIS_PASSWORD"),
+        decode_responses=True,
+    )
 
+# Connect to PostgreSQL for permanent storage
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db():
     """Connect to PostgreSQL for permanent storage."""
+    if DATABASE_URL:
+        return psycopg2.connect(DATABASE_URL)
     return psycopg2.connect(
         host=os.environ["POSTGRES_HOST"],
         database=os.environ["POSTGRES_DB"],
         user=os.environ["POSTGRES_USER"],
         password=os.environ["POSTGRES_PASSWORD"],
     )
+
+
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS urls (
+            id SERIAL PRIMARY KEY,
+            long_url TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+init_db()  # runs once when the module is imported (i.e. when gunicorn/flask starts)
 
 
 # we take 0-9 , a-b , A-B total 62 char only as it is URL safe strings (no special symbols etc)
@@ -81,14 +108,12 @@ def index():
 @app.route("/shorten", methods=["POST"])
 @rate_limit(max_requests=10, window=60)
 def shorten_url():
-    # Grab the long URL from the request body
     data = request.get_json()
     if not data or "url" not in data:
         return jsonify({"error": "Missing url field"}), 400
 
     long_url = data["url"]
 
-    # Save to PostgreSQL - the database assigns an auto-incrementing ID
     conn = get_db()
     cur = conn.cursor()
     cur.execute("INSERT INTO urls (long_url) VALUES (%s) RETURNING id", (long_url,))
@@ -97,10 +122,7 @@ def shorten_url():
     cur.close()
     conn.close()
 
-    # Encode the database ID into a short code
     short_code = base62_encode(url_id)
-
-    # Cache the mapping for fast redirects later
     cache.set(short_code, long_url)
 
     short_url = request.host_url + short_code   
@@ -111,14 +133,12 @@ def shorten_url():
 
 @app.route("/<short_code>")
 def redirect_url(short_code):
-    # Check the fast cache first
     long_url = cache.get(short_code)
 
     if long_url:
         print("CACHE HIT", flush=True)
         return redirect(long_url, code=302)
 
-    # Cache miss - fall back to the database
     print("CACHE MISS - querying database", flush=True)
     conn = get_db()
     cur = conn.cursor()
@@ -130,7 +150,6 @@ def redirect_url(short_code):
     if not result:
         return jsonify({"error": "Short URL not found"}), 404
 
-    # Found it in the database - cache it for next time
     long_url = result[0]
     cache.set(short_code, long_url)
 
