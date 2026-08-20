@@ -1,0 +1,55 @@
+services:
+  web:
+    build: ./app
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=urlshortener
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=urlshortener
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+
+# This Docker Compose file defines three core services required for our application's end-to-end functionality: a Flask API (web), a database (db), and a caching layer (redis).
+# Under the services: block:
+# The web service builds the Flask application from the ./app directory, exposing port 5000. 
+# It injects critical environment variables (such as connection credentials and hostnames for Redis and Postgres). 
+# Crucially, the depends_on directive blocks the web service from starting until both the database and cache have fully booted and passed their health checks.
+# The db service pulls the official PostgreSQL 16 Alpine image. It sets up environment variables for the master database name, username, and password. 
+# It mounts a persistent named volume to safeguard database files from deletion and binds our init.sql file to initialize our database schema. 
+# Finally, its health check runs pg_isready at a regular interval to verify database availability.
+# The redis service launches a caching container using the lightweight Alpine image and includes its own health check command (redis-cli ping) to signal readiness.
+# At the very end, we globally declare the named volume postgres_data. Leaving it empty tells Docker Compose to spin it up using the default local storage driver
