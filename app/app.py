@@ -16,7 +16,7 @@ ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 
 # Connect to Redis for fast lookups
 cache = redis.Redis(
-    host=os.environ.get("REDIS_HOST", "redis"),
+    host=os.environ["REDIS_HOST"],
     port=int(os.environ.get("REDIS_PORT", 6379)),
     decode_responses=True,
 )
@@ -25,10 +25,10 @@ cache = redis.Redis(
 def get_db():
     """Connect to PostgreSQL for permanent storage."""
     return psycopg2.connect(
-        host=os.environ.get("POSTGRES_HOST", "db"),
-        database=os.environ.get("POSTGRES_DB", "urlshortener"),
-        user=os.environ.get("POSTGRES_USER", "postgres"),
-        password=os.environ.get("POSTGRES_PASSWORD", "postgres"),
+        host=os.environ["POSTGRES_HOST"],
+        database=os.environ["POSTGRES_DB"],
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
     )
 
 
