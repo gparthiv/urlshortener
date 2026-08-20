@@ -103,7 +103,11 @@ def shorten_url():
     # Cache the mapping for fast redirects later
     cache.set(short_code, long_url)
 
-    return jsonify({"short_url": f"http://localhost:5000/{short_code}", "short_code": short_code}), 201
+    short_url = request.host_url + short_code   
+    return jsonify({
+        "short_url": short_url,
+        "short_code": short_code
+    }), 201
 
 @app.route("/<short_code>")
 def redirect_url(short_code):
