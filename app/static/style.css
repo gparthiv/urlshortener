@@ -32,10 +32,10 @@ body {
 
     background: #fff8ed;
 
-    border: 1px solid #c8a98a;
+    /* border: 1px solid #c8a98a; */
     border-radius: 12px;
 
-    box-shadow: 0 8px 25px rgba(75, 46, 31, 0.08);
+    /* box-shadow: 0 8px 25px rgba(75, 46, 31, 0.08); */
 }
 
 
@@ -248,9 +248,9 @@ body.dark {
 
 body.dark .container {
     background: #3b2c23;
-    border-color: #76533d;
+    /* border-color: #76533d; */
 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25); */
 }
 
 
