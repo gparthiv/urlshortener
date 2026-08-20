@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CutURL | URL Shortener</title>
+    <title>CutURL</title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
-    <link rel="icon" type="image/png" href="app/static/favicon.png">
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='favicon.png') }}"
+    >
 
 </head>
 
